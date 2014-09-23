@@ -92,6 +92,9 @@
 (defget-element frame-by-name)
 (defget-element input-by-name)
 
+(defn get-forms [page]
+  (.getForms page))
+
 (defmacro ^:private defget-info [how]
   (let [method-name (symbol (str "get-" (name how)))
         dispatch (symbol (apply str ".get" 
