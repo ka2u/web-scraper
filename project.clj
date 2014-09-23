@@ -1,4 +1,4 @@
-(defproject web-scraper "0.0.1"
+(defproject org.clojars.ka2u/web-scraper "0.0.1"
   :description "Web scraping library. It has fairly good JavaScript support by HtmlUnit."
   :url "https://github.com/ka2u/web-scraper"
   :license {:name "Eclipse Public License"
