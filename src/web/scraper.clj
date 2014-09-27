@@ -18,40 +18,75 @@
   [app-name app-version useragent version-numeric]
   (BrowserVersion. app-name app-version useragent version-numeric))
 
-(defmacro ^:private defset-option [what]
-  (let [method-name (symbol (str "set-" (name what)))
-        dispatch (symbol (apply str "set" (map string/capitalize (string/split (name what) #"-"))))]
-    `(defn ~method-name [client# flag#]
-       (.. client# getOptions (~dispatch flag#)))))
 
-(defset-option active-x-native)
-(defset-option applet-enabled)
-(defset-option css-enabled)
-(defset-option do-not-track-enabled)
-(defset-option geolocation-enabled)
-(defset-option popup-blocker-enabled)
-(defset-option print-content-on-failing-status-code)
-(defset-option redirect-enabled)
-(defset-option throw-exception-on-failing-status-code)
-(defset-option throw-exception-on-script-error)
+(defn method-name-and-operator [type what]
+  (let [method-name (symbol (str (name type) "-" (if (= type :set)
+                                                   (str (name what) "!")
+                                                   (name what))))
+        dispatch (symbol (apply str "." (name type) (map string/capitalize (string/split (name what) #"-"))))]
+    [method-name dispatch]))
 
-(defn set-javascript-enabled 
+(defmacro ^:private defoperator [type what]
+  (let [[method-name dispatch] (method-name-and-operator type what)]
+  `(defn ~method-name 
+     ([page#] (~dispatch page#))
+     ([page# element#] (~dispatch page# element#)) )))
+
+(defmacro ^:private defoption-operator [type what]
+  (let [[method-name dispatch] (method-name-and-operator type what)]
+    `(defn ~method-name 
+       ([client#] (~dispatch (.getOptions client#)))
+       ([client# flag#] (~dispatch (.getOptions client#) flag#)))))
+
+(defoption-operator :set active-x-native)
+(defoption-operator :set applet-enabled)
+(defoption-operator :set css-enabled)
+(defoption-operator :set do-not-track-enabled)
+(defoption-operator :set geolocation-enabled)
+(defoption-operator :set popup-blocker-enabled)
+(defoption-operator :set print-content-on-failing-status-code)
+(defoption-operator :set redirect-enabled)
+(defoption-operator :set throw-exception-on-failing-status-code)
+(defoption-operator :set throw-exception-on-script-error)
+
+(defoption-operator :is active-x-native)
+(defoption-operator :is applet-enabled)
+(defoption-operator :is css-enabled)
+(defoption-operator :is do-not-track-enabled)
+(defoption-operator :is geolocation-enabled)
+(defoption-operator :is popup-blocker-enabled)
+(defoption-operator :get print-content-on-failing-status-code)
+(defoption-operator :is redirect-enabled)
+(defoption-operator :is throw-exception-on-failing-status-code)
+(defoption-operator :is throw-exception-on-script-error)
+
+(defn set-javascript-enabled!
   "Sets enable JavaScript."
   [client flag]
   (.. client getOptions (setJavaScriptEnabled flag)))
 
-(defn set-cookies-enabled 
+(defn is-javascript-enabled
+  "Is enable JavaScript?"
+  [client]
+  (.. client getOptions (isJavaScriptEnabled)))
+
+(defn set-cookies-enabled!
   "Sets enable cookies"
   [client flag]
   (.. client getCookieManager (setCookiesEnabled flag)))
 
-(defn default-mode 
+(defn is-cookies-enabled
+  "Is enable cookies?"
+  [client]
+  (.. client getCookieManager (isCookiesEnabled)))
+
+(defn default-mode!
   "Takes the client and sets common browser options."
   [client]
-  (set-throw-exception-on-script-error client false)
-  (set-redirect-enabled client true)
-  (set-javascript-enabled client true)
-  (set-cookies-enabled client true)
+  (set-throw-exception-on-script-error! client false)
+  (set-redirect-enabled! client true)
+  (set-javascript-enabled! client true)
+  (set-cookies-enabled! client true)
   client)
 
 (defn make-client 
@@ -77,36 +112,21 @@
     (.setRequestParameters req param)
     (.getPage client req)))
 
-(defmacro ^:private defget-element [what]
-  (let [method-name (symbol (str "get-" (name what)))
-        dispatch (symbol (apply str ".get" (map string/capitalize (string/split (name what) #"-"))))]
-    `(defn ~method-name [page# element#]
-       (~dispatch page# element#))))
+(defoperator :get form-by-name)
+(defoperator :get element-by-id)
+(defoperator :get element-by-name)
+(defoperator :get elements-by-id-and-or-name)
+(defoperator :get elements-by-name)
+(defoperator :get elements-by-tag-name)
+(defoperator :get frame-by-name)
+(defoperator :get input-by-name)
+(defoperator :get forms)
 
-(defget-element form-by-name)
-(defget-element element-by-id)
-(defget-element element-by-name)
-(defget-element element-by-id-and-or-name)
-(defget-element elements-by-name)
-(defget-element elements-by-tag-name)
-(defget-element frame-by-name)
-(defget-element input-by-name)
-
-(defn get-forms [page]
-  (.getForms page))
-
-(defmacro ^:private defget-info [how]
-  (let [method-name (symbol (str "get-" (name how)))
-        dispatch (symbol (apply str ".get" 
-                         (map string/capitalize (string/split (name how) #"-"))))]
-  `(defn ~method-name [page#]
-     (~dispatch page#))))
-
-(defget-info url)
-(defget-info title-text)
-(defget-info page-encoding)
-(defget-info web-response)
-(defget-info href-attribute)
+(defoperator :get url)
+(defoperator :get title-text)
+(defoperator :get page-encoding)
+(defoperator :get web-response)
+(defoperator :get href-attribute)
 
 (defn get-status 
   "Gets a HTTP status code"
@@ -120,8 +140,8 @@
 
 (defn click 
   "Clicks a button."
-  [page]
-  (.click page))
+  [button]
+  (.click button))
 
 (defn page->text 
   "Gets a text by the page."
