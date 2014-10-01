@@ -143,6 +143,11 @@
   [button]
   (.click button))
 
+(defn get-elem-from-nodelist-by-index
+  "Get element from XNodeList by index."
+  [nodelist index]
+  (.get nodelist index))
+
 (defn page->text 
   "Gets a text by the page."
   [page]

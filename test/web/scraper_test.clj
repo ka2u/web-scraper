@@ -21,6 +21,7 @@
   (GET "/frame" [] "<iframe name=test></iframe>")
   (GET "/title" [] "<html><head><title>test</title></head></html>")
   (GET "/encoding" [] "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><title>test</title></head></html>")
+  (GET "/nodelist" [] "<html><body><div>foo</div><div>bar</div><div>baz</div></body></html>")
   (POST "/post" [] "hello world"))
 
 (use-fixtures :once
@@ -189,3 +190,10 @@
                 (-> (get-page client "http://127.0.0.1:4347/node")
                     (page->enlive)
                     (select-text-node [:div :p]))))))
+
+(deftest test-get-elem-from-nodelist-by-id
+  (is (= "<div>\r\n  baz\r\n</div>\r\n"
+         (apply str 
+                (page->text (get-elem-from-nodelist-by-index
+                  (get-elements-by-tag-name 
+                   (get-page client "http://127.0.0.1:4347/nodelist") "div") 2))))))
