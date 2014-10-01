@@ -4,7 +4,7 @@ Web scraping library. It has fairly good JavaScript support by HtmlUnit.
 
 ## Usage
 
-Add `[org.clojars.ka2u/web-scraper "0.0.2"]` to your project.clj's `:dependecies` .
+Add `[org.clojars.ka2u/web-scraper "0.0.3"]` to your project.clj's `:dependecies` .
 
 ```
 (def client (make-client browser-chrome))
