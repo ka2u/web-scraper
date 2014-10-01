@@ -17,5 +17,4 @@ Add `[org.clojars.ka2u/web-scraper "0.0.3"]` to your project.clj's `:dependecies
 
 Copyright © 2014 Kazuhiro SHIBUYA
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Released under the MIT license.
