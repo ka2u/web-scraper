@@ -10,7 +10,7 @@
            [java.util ArrayList]))
 ; browsers
 (def browser-chrome (BrowserVersion/CHROME))
-(def browser-firfox (BrowserVersion/FIREFOX_24))
+(def browser-firfox (BrowserVersion/FIREFOX_38))
 (def browser-ie (BrowserVersion/INTERNET_EXPLORER_11))
 
 (defn make-browser 
